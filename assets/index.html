@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemma Emoji Matrix</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; text-align: center; }
+    input, button { font-size: 18px; padding: 12px; width: 100%; box-sizing: border-box; margin-top: 10px; }
+    #emoji { font-size: 96px; margin-top: 20px; }
+    #info { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Gemma Emoji Matrix</h1>
+  <p>Type how you feel. Gemma 4 finds the emotion and the UNO Q shows it on the LED matrix.</p>
+  <input id="t" placeholder="I aced my exam today!">
+  <button onclick="go()">Show my mood</button>
+  <div id="emoji">😐</div>
+  <div id="label"></div>
+  <div id="info"></div>
+  <script>
+    async function go() {
+      const t = document.getElementById("t").value;
+      document.getElementById("label").textContent = "Asking Gemma...";
+      try {
+        const res = await fetch("/analyze?text=" + encodeURIComponent(t));
+        const d = await res.json();
+        if (d.error) { document.getElementById("label").textContent = d.error; return; }
+        document.getElementById("emoji").textContent = d.emoji;
+        document.getElementById("label").textContent = d.emotion + " (look at the board!)";
+        document.getElementById("info").textContent = "Decided by: " + d.source;
+      } catch (e) {
+        document.getElementById("label").textContent = "Could not reach the board: " + e;
+      }
+    }
+    document.getElementById("t").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  </script>
+</body>
+</html>
